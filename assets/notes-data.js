@@ -31,8 +31,8 @@ window.NOTES = [
     chapter: "Sedra/Smith Ch.4",
     summary: "理想、定電壓降、指數模型怎麼選，以及用迭代法解二極體電路。",
     tags: ["理想二極體", "定電壓降模型", "指數模型", "小訊號模型"],
-    status: "planned",
-    updated: ""
+    status: "done",
+    updated: "2026-11-16"
   },
   {
     slug: "diode-applications",

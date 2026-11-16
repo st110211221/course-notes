@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>單元 02：二極體模型與直流分析｜電子學筆記</title>
+  <meta name="description" content="理想、定電壓降、指數模型怎麼選，以及用迭代法解二極體電路。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="../assets/notes-data.js"></script>
+  <script defer src="../assets/site.js"></script>
+</head>
+<body data-page="note" data-slug="diode-models">
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">電子學筆記<span class="dot">・</span></a>
+      <span class="breadcrumb">首頁 ／ 單元 02</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="unit-label">單元 02・Sedra/Smith Ch.4</span>
+    <h1>二極體模型與直流分析</h1>
+    <p class="lead">理想、定電壓降、指數模型怎麼選，以及用迭代法解二極體電路。</p>
+    <p class="meta">最後更新：2026-11-16</p>
+
+    <section class="goals">
+      <h2>學習目標</h2>
+      <ul>
+        <li>會用假設－驗證法判斷電路中每顆二極體是導通還是截止</li>
+        <li>會用定電壓降模型（0.7 V）快速算出二極體電路的電流與電壓</li>
+        <li>能用負載線說明工作點，並會用迭代法配合指數模型求精確解</li>
+        <li>會算小訊號電阻 \(r_d\)，並用它估算直流工作點附近的小變化</li>
+      </ul>
+    </section>
+
+    <!-- ========== 1. 理想二極體 ========== -->
+    <h2>1. 理想二極體：單向開關</h2>
+    <p>把二極體想成一個只讓電流單向通過的開關：電流從陽極（anode）流進、陰極（cathode）流出時，開關閉合；方向反過來，開關就打開。電路符號裡的三角形，就是指向允許電流流動的方向。</p>
+    <p>這個模型完全忽略了導通時的壓降和逆偏時的漏電流，所以最粗略，但最適合用來看懂「電路裡哪顆二極體在工作」。</p>
+
+    <div class="box def">
+      <span class="box-title">定義：理想二極體（ideal diode）</span>
+      <p>只有兩種狀態，各自要滿足一個條件：</p>
+      <ul>
+        <li>導通（on）：當成短路，\(v_D = 0\)；電流由外部電路決定，但必須 \(i_D &gt; 0\)。</li>
+        <li>截止（off）：當成開路，\(i_D = 0\)；電壓由外部電路決定，但必須 \(v_D \le 0\)。</li>
+      </ul>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 640 250" role="img" aria-label="理想二極體的電路符號與 I–V 特性" font-family="inherit">
+        <defs>
+          <marker id="arrow-axis1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
+          </marker>
+          <marker id="arrow-i1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+        <!-- 左：電路符號 -->
+        <text x="140" y="26" text-anchor="middle" font-size="15" font-weight="700" fill="var(--navy)">電路符號</text>
+        <line x1="40" y1="110" x2="110" y2="110" stroke="var(--navy)" stroke-width="2"/>
+        <path d="M110 88 L110 132 L148 110 z" fill="var(--navy)"/>
+        <line x1="148" y1="88" x2="148" y2="132" stroke="var(--navy)" stroke-width="3"/>
+        <line x1="148" y1="110" x2="240" y2="110" stroke="var(--navy)" stroke-width="2"/>
+        <circle cx="40" cy="110" r="4" fill="var(--navy)"/>
+        <circle cx="240" cy="110" r="4" fill="var(--navy)"/>
+        <text x="40" y="80" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ink)">+</text>
+        <text x="240" y="80" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ink)">−</text>
+        <text x="140" y="76" text-anchor="middle" font-size="15" fill="var(--ink)">v<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="40" y="150" text-anchor="middle" font-size="14" fill="var(--ink)">陽極</text>
+        <text x="40" y="168" text-anchor="middle" font-size="12" fill="var(--muted)">anode</text>
+        <text x="240" y="150" text-anchor="middle" font-size="14" fill="var(--ink)">陰極</text>
+        <text x="240" y="168" text-anchor="middle" font-size="12" fill="var(--muted)">cathode</text>
+        <line x1="100" y1="200" x2="180" y2="200" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow-i1)"/>
+        <text x="140" y="226" text-anchor="middle" font-size="15" fill="var(--accent)">i<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <!-- 分隔線 -->
+        <line x1="295" y1="20" x2="295" y2="235" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <!-- 右：I–V 特性 -->
+        <text x="560" y="26" text-anchor="middle" font-size="15" font-weight="700" fill="var(--navy)">I–V 特性</text>
+        <line x1="320" y1="170" x2="622" y2="170" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis1)"/>
+        <line x1="470" y1="236" x2="470" y2="40" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis1)"/>
+        <text x="604" y="194" font-size="15" fill="var(--ink)">v<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="480" y="50" font-size="15" fill="var(--ink)">i<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="460" y="190" text-anchor="end" font-size="13" fill="var(--muted)">0</text>
+        <path d="M330 170 L470 170 L470 60" fill="none" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/>
+        <text x="484" y="100" font-size="15" font-weight="700" fill="var(--formula)">導通：短路</text>
+        <text x="484" y="122" font-size="13" fill="var(--muted)">v<tspan baseline-shift="sub" font-size="10">D</tspan> = 0、i<tspan baseline-shift="sub" font-size="10">D</tspan> &gt; 0</text>
+        <text x="395" y="156" text-anchor="middle" font-size="15" font-weight="700" fill="var(--def)">截止：開路</text>
+        <text x="395" y="196" text-anchor="middle" font-size="13" fill="var(--muted)">i<tspan baseline-shift="sub" font-size="10">D</tspan> = 0、v<tspan baseline-shift="sub" font-size="10">D</tspan> ≤ 0</text>
+      </svg>
+      <figcaption>圖 1：理想二極體的符號與 I–V 特性。導通時電壓為 0，截止時電流為 0，就像一個單向開關。</figcaption>
+    </figure>
+
+    <p>麻煩的是：解電路之前，你不知道二極體是導通還是截止。標準做法是先猜、再驗證。</p>
+
+    <div class="box tip">
+      <span class="box-title">假設－驗證法（assume-and-verify）</span>
+      <ol>
+        <li>先假設每顆二極體的狀態（導通或截止）。</li>
+        <li>導通的換成短路、截止的換成開路，用 KVL、KCL 解電路。</li>
+        <li>驗證：導通的要 \(i_D &gt; 0\)，截止的要 \(v_D \le 0\)。</li>
+        <li>只要有一顆矛盾，就換一組假設重算。</li>
+      </ol>
+      <p>如果某顆算出 \(i_D &lt; 0\)，下一輪通常就把它改成截止。</p>
+    </div>
+
+    <!-- ========== 2. 定電壓降模型 ========== -->
+    <h2>2. 定電壓降模型</h2>
+    <p>理想模型的問題是忽略了導通壓降。單元 01 的 60 mV 法則告訴我們：電流從 0.1 mA 變到 10 mA，矽二極體的端電壓只在 0.6～0.8 V 之間移動。既然電壓幾乎不動，乾脆把它當成固定的 0.7 V。</p>
+
+    <div class="box def">
+      <span class="box-title">定義：定電壓降模型（constant-voltage-drop model）</span>
+      <p>一樣只有兩種狀態，只是導通時多了 0.7 V 的壓降：</p>
+      <ul>
+        <li>導通：換成一個 0.7 V 的電壓源（正端在陽極）；必須 \(i_D &gt; 0\)。</li>
+        <li>截止：換成開路；必須 \(v_D &lt; 0.7\) V。</li>
+      </ul>
+    </div>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：串聯電路的二極體電流</span>
+      $$I_D = \frac{V_{DD} - V_D}{R}, \qquad V_D \approx 0.7\ \text{V}$$
+      <p>\(V_{DD}\) 是直流電源電壓（V），\(R\) 是串聯電阻（Ω），\(V_D\) 是二極體的導通壓降（V）。理想模型就是把 \(V_D\) 代 0；條件是 \(V_{DD} &gt; V_D\)，否則二極體截止、\(I_D = 0\)。</p>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 640 280" role="img" aria-label="定電壓降模型的 I–V 特性與等效電路" font-family="inherit">
+        <defs>
+          <marker id="arrow-axis2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+        <!-- 左：I–V -->
+        <line x1="40" y1="230" x2="372" y2="230" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis2)"/>
+        <line x1="60" y1="252" x2="60" y2="20" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis2)"/>
+        <text x="356" y="220" font-size="15" fill="var(--ink)">v<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="70" y="30" font-size="15" fill="var(--ink)">i<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="52" y="250" text-anchor="end" font-size="13" fill="var(--muted)">0</text>
+        <!-- 實際指數曲線（虛線） -->
+        <path d="M60 230 L230 229.9 L240 229.6 L250 228.7 L256 227.1 L260 225.3 L264 221.7 L268 216.5 L271 210.2 L274 200.8 L277 187.1 L280 166.9 L283 137.1 L286 93.4 L289 29"
+              fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/>
+        <!-- 定電壓降模型（粗線） -->
+        <path d="M64 230 L270 230 L270 34" fill="none" stroke="var(--navy)" stroke-width="4" stroke-linejoin="round"/>
+        <line x1="270" y1="230" x2="270" y2="238" stroke="var(--muted)"/>
+        <text x="270" y="254" text-anchor="middle" font-size="13" fill="var(--muted)">0.7 V</text>
+        <text x="258" y="90" text-anchor="end" font-size="15" font-weight="700" fill="var(--navy)">定電壓降模型</text>
+        <text x="258" y="112" text-anchor="end" font-size="13" fill="var(--muted)">（粗線）</text>
+        <text x="298" y="70" font-size="14" fill="var(--muted)">實際曲線</text>
+        <text x="298" y="90" font-size="13" fill="var(--muted)">（虛線）</text>
+        <text x="160" y="214" text-anchor="middle" font-size="13" fill="var(--def)">截止：i<tspan baseline-shift="sub" font-size="10">D</tspan> = 0</text>
+        <!-- 分隔線 -->
+        <line x1="392" y1="20" x2="392" y2="262" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <!-- 右：等效電路 -->
+        <text x="512" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="var(--navy)">等效電路</text>
+        <text x="420" y="72" font-size="14" font-weight="700" fill="var(--formula)">導通（i<tspan baseline-shift="sub" font-size="10">D</tspan> &gt; 0）</text>
+        <g stroke="var(--navy)">
+          <line x1="444" y1="112" x2="502" y2="112" stroke-width="2"/>
+          <line x1="502" y1="92" x2="502" y2="132" stroke-width="2.5"/>
+          <line x1="514" y1="102" x2="514" y2="122" stroke-width="5"/>
+          <line x1="514" y1="112" x2="580" y2="112" stroke-width="2"/>
+        </g>
+        <circle cx="440" cy="112" r="4" fill="var(--navy)"/>
+        <circle cx="584" cy="112" r="4" fill="var(--navy)"/>
+        <text x="490" y="98" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">+</text>
+        <text x="528" y="98" text-anchor="middle" font-size="15" font-weight="700" fill="var(--ink)">−</text>
+        <text x="508" y="154" text-anchor="middle" font-size="14" fill="var(--ink)">0.7 V</text>
+        <text x="440" y="140" text-anchor="middle" font-size="12" fill="var(--muted)">陽極</text>
+        <text x="584" y="140" text-anchor="middle" font-size="12" fill="var(--muted)">陰極</text>
+        <text x="420" y="194" font-size="14" font-weight="700" fill="var(--def)">截止（v<tspan baseline-shift="sub" font-size="10">D</tspan> &lt; 0.7 V）</text>
+        <g stroke="var(--navy)" stroke-width="2">
+          <line x1="444" y1="226" x2="494" y2="226"/>
+          <line x1="530" y1="226" x2="580" y2="226"/>
+        </g>
+        <circle cx="440" cy="226" r="4" fill="var(--navy)"/>
+        <circle cx="584" cy="226" r="4" fill="var(--navy)"/>
+        <text x="512" y="256" text-anchor="middle" font-size="13" fill="var(--muted)">開路</text>
+      </svg>
+      <figcaption>圖 2：定電壓降模型。實際曲線在 0.7 V 附近幾乎垂直，所以把導通電壓固定成 0.7 V 誤差不大。</figcaption>
+    </figure>
+
+    <div class="box tip">
+      <span class="box-title">0.7 V 不是物理常數</span>
+      <p>0.7 V 只是「電流在 mA 等級的小訊號矽二極體」的典型值。題目給了導通電壓（例如 0.6 V），或給了某個電流下的端電壓，就用題目的數字；蕭特基二極體（Schottky diode）的導通電壓只有約 0.3～0.5 V。</p>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">分段線性模型（✏️待確認是否在考試範圍）</span>
+      <p>較早版本的課本還有分段線性模型（piecewise-linear model）：導通時換成電壓源 \(V_{D0}\) 串聯一個小電阻 \(r_D\)。精確度介於定電壓降與指數模型之間，但手算比較麻煩；老師若有教再補例題。</p>
+    </div>
+
+    <!-- ========== 3. 指數模型 ========== -->
+    <h2>3. 指數模型：負載線與迭代法</h2>
+    <p>最準的是直接用單元 01 的二極體方程式。順偏時 \(v_D\) 比 \(V_T\) 大很多，括號裡的 −1 可以忽略：</p>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：指數模型（exponential model）</span>
+      $$i_D = I_S\, e^{v_D/V_T}$$
+      $$V_2 - V_1 = V_T \ln\frac{I_2}{I_1} = 2.3\,V_T \log\frac{I_2}{I_1}$$
+      <p>第二式是兩個工作點相除的結果：只要知道一點 \((I_1, V_1)\)，就能推出任何電流下的電壓，不需要知道 \(I_S\)。\(V_T\) = 25.9 mV，\(2.3\,V_T \approx 59.6\) mV，也就是電流每變 10 倍，電壓變約 60 mV。</p>
+    </div>
+
+    <p>問題是：把它和 KVL 聯立，\(I_D = I_S e^{V_D/V_T}\) 和 \(I_D = (V_{DD}-V_D)/R\) 一個是指數、一個是直線，沒有代數解，只能用圖解或迭代。</p>
+
+    <div class="box def">
+      <span class="box-title">定義：負載線（load line）與工作點（operating point）</span>
+      <p>KVL 的 \(I_D = (V_{DD}-V_D)/R\) 畫在 \(i_D\)–\(v_D\) 平面上是一條直線，叫負載線：橫軸截距 \(V_{DD}\)、縱軸截距 \(V_{DD}/R\)、斜率 \(-1/R\)。它和二極體特性曲線的交點就是工作點 Q（quiescent point），也就是電路真正的 \(V_D\) 與 \(I_D\)。</p>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 640 310" role="img" aria-label="負載線與二極體特性曲線的交點即工作點" font-family="inherit">
+        <defs>
+          <marker id="arrow-axis3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+        <line x1="50" y1="270" x2="622" y2="270" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis3)"/>
+        <line x1="70" y1="292" x2="70" y2="18" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis3)"/>
+        <text x="604" y="258" font-size="15" fill="var(--ink)">v<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="80" y="28" font-size="15" fill="var(--ink)">i<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="62" y="290" text-anchor="end" font-size="13" fill="var(--muted)">0</text>
+        <!-- 二極體特性曲線 -->
+        <path d="M70 270 L120 270 L160 269.9 L190 269.1 L210 265.4 L220 259.4 L228 249.4 L234 236 L240 213.9 L244 191.8 L248 160.8 L252 117.6 L255 74.3 L257 38.8"
+              fill="none" stroke="var(--navy)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <text x="266" y="56" font-size="14" font-weight="700" fill="var(--navy)">二極體特性曲線</text>
+        <!-- 負載線 -->
+        <line x1="70" y1="50" x2="540" y2="270" stroke="var(--accent)" stroke-width="2.5"/>
+        <text x="400" y="182" font-size="14" font-weight="700" fill="var(--accent)">負載線（斜率 −1/R）</text>
+        <!-- 截距 -->
+        <line x1="540" y1="270" x2="540" y2="278" stroke="var(--muted)"/>
+        <text x="540" y="294" text-anchor="middle" font-size="14" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="10">DD</tspan></text>
+        <text x="62" y="55" text-anchor="end" font-size="14" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="10">DD</tspan>/R</text>
+        <!-- 工作點 Q -->
+        <g stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4">
+          <line x1="250.6" y1="134.5" x2="250.6" y2="270"/>
+          <line x1="250.6" y1="134.5" x2="70" y2="134.5"/>
+        </g>
+        <circle cx="250.6" cy="134.5" r="6" fill="var(--tip)" stroke="var(--surface)" stroke-width="2"/>
+        <text x="264" y="128" font-size="16" font-weight="700" fill="var(--tip)">Q</text>
+        <text x="250.6" y="294" text-anchor="middle" font-size="14" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="10">D</tspan></text>
+        <text x="62" y="139" text-anchor="end" font-size="14" fill="var(--ink)">I<tspan baseline-shift="sub" font-size="10">D</tspan></text>
+      </svg>
+      <figcaption>圖 3：負載線與工作點（示意圖，非等比例）。KVL 給一條直線、二極體給一條曲線，兩者同時成立的點就是 Q。</figcaption>
+    </figure>
+
+    <p>圖解法適合理解，手算時用迭代法比較快：</p>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：迭代法（iterative analysis）</span>
+      $$I_D^{(k)} = \frac{V_{DD} - V_D^{(k)}}{R}, \qquad V_D^{(k+1)} = V_1 + V_T \ln\frac{I_D^{(k)}}{I_1}$$
+      <p>從 \(V_D^{(1)} = 0.7\) V 開始，交替算電流、再用電流更新電壓，直到前後兩次的 \(V_D\) 相差不到 1 mV。\((I_1, V_1)\) 是已知的一個工作點；題目給的是 \(I_S\) 的話，第二式改用 \(V_D = V_T\ln(I_D/I_S)\)。</p>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">為什麼兩、三次就收斂</span>
+      <p>電壓對電流是對數關係：電流估錯 10%，電壓只差 \(V_T\ln 1.1 \approx 2.5\) mV。所以只要 \(V_{DD}\) 比 0.7 V 大不少，每迭代一次誤差就大幅縮小，通常兩、三次就夠。</p>
+    </div>
+
+    <!-- ========== 4. 小訊號模型 ========== -->
+    <h2>4. 小訊號模型</h2>
+    <p>很多電路是「直流偏壓＋很小的交流訊號」：直流決定工作點，訊號在工作點附近小幅擺動。只看工作點附近的一小段，指數曲線幾乎就是它的切線，所以二極體可以當成一個電阻，這就是小訊號模型（small-signal model）。</p>
+    <p>這個電阻就是切線斜率的倒數。對 \(i_D = I_S e^{v_D/V_T}\) 在 Q 點微分：\(\partial i_D/\partial v_D = I_S e^{V_D/V_T}/V_T = I_D/V_T\)。</p>
+
+    <div class="box tip">
+      <span class="box-title">符號慣例（Sedra/Smith）</span>
+      <p>小寫＋大寫下標＝總量（\(v_D\)、\(i_D\)）；大寫＋大寫下標＝直流量（\(V_D\)、\(I_D\)）；小寫＋小寫下標＝小訊號（\(v_d\)、\(i_d\)）。所以 \(v_D = V_D + v_d\)、\(i_D = I_D + i_d\)。</p>
+    </div>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：小訊號電阻（small-signal resistance）</span>
+      $$r_d = \frac{V_T}{I_D}, \qquad i_d = \frac{v_d}{r_d}$$
+      <p>\(r_d\) 是二極體的小訊號電阻（Ω），\(I_D\) 是直流偏壓電流（A），\(V_T\) = 25.9 mV。例如 \(I_D = 1\) mA 時 \(r_d = 25.9\) Ω；偏壓電流越大，\(r_d\) 越小。成立條件是 \(|v_d| \ll V_T\)：\(|v_d|\) 在 5 mV 以內時，誤差約 10%。</p>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 640 310" role="img" aria-label="在工作點畫切線得到小訊號電阻" font-family="inherit">
+        <defs>
+          <marker id="arrow-axis4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+        <line x1="50" y1="280" x2="622" y2="280" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis4)"/>
+        <line x1="70" y1="300" x2="70" y2="18" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis4)"/>
+        <text x="604" y="268" font-size="15" fill="var(--ink)">v<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <text x="80" y="28" font-size="15" fill="var(--ink)">i<tspan baseline-shift="sub" font-size="11">D</tspan></text>
+        <!-- 對應範圍的虛線 -->
+        <g stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 4">
+          <line x1="350" y1="280" x2="350" y2="199.3"/>
+          <line x1="366" y1="280" x2="366" y2="140.7"/>
+          <line x1="350" y1="199.3" x2="70" y2="199.3"/>
+          <line x1="366" y1="140.7" x2="70" y2="140.7"/>
+        </g>
+        <!-- 指數曲線 -->
+        <path d="M70 280 L150 279.9 L200 279.4 L230 278.5 L260 275.8 L280 271.8 L300 264.1 L320 249.1 L335 229 L350 195.9 L365 141.4 L380 51.4 L383 27.4"
+              fill="none" stroke="var(--navy)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <text x="300" y="232" text-anchor="end" font-size="14" font-weight="700" fill="var(--navy)">特性曲線</text>
+        <!-- 切線 -->
+        <line x1="332" y1="265.3" x2="386" y2="67.3" stroke="var(--tip)" stroke-width="2.5"/>
+        <text x="396" y="80" font-size="14" font-weight="700" fill="var(--tip)">切線：斜率 = 1/r<tspan baseline-shift="sub" font-size="10">d</tspan></text>
+        <!-- 工作點 -->
+        <circle cx="358" cy="170" r="6" fill="var(--tip)" stroke="var(--surface)" stroke-width="2"/>
+        <text x="376" y="176" font-size="15" font-weight="700" fill="var(--tip)">Q（V<tspan baseline-shift="sub" font-size="10">D</tspan>, I<tspan baseline-shift="sub" font-size="10">D</tspan>）</text>
+        <!-- 小訊號擺動範圍 -->
+        <line x1="350" y1="280" x2="366" y2="280" stroke="var(--accent)" stroke-width="5"/>
+        <line x1="70" y1="199.3" x2="70" y2="140.7" stroke="var(--accent)" stroke-width="5"/>
+        <text x="358" y="302" text-anchor="middle" font-size="14" fill="var(--accent)">V<tspan baseline-shift="sub" font-size="10">D</tspan> ± v<tspan baseline-shift="sub" font-size="10">d</tspan></text>
+        <text x="62" y="175" text-anchor="end" font-size="14" fill="var(--accent)">I<tspan baseline-shift="sub" font-size="10">D</tspan> ± i<tspan baseline-shift="sub" font-size="10">d</tspan></text>
+      </svg>
+      <figcaption>圖 4：小訊號模型就是在工作點 Q 畫切線（示意圖）。電壓只在 \(V_D\) 附近小幅擺動時，電流的變化可以沿著切線讀出來。</figcaption>
+    </figure>
+
+    <div class="box tip">
+      <span class="box-title">分析步驟：先直流、再交流</span>
+      <ol>
+        <li>只留直流源，用前面的模型求工作點 \(I_D\)。</li>
+        <li>算 \(r_d = V_T/I_D\)。</li>
+        <li>只留訊號源：直流電壓源短路、直流電流源開路，二極體換成 \(r_d\)，解出 \(v_d\)、\(i_d\)。</li>
+        <li>需要總量時，再把直流和小訊號加起來。</li>
+      </ol>
+    </div>
+
+    <p>順偏二極體的壓降幾乎不隨電流變（\(r_d\) 很小），所以幾顆串聯就能當簡單的穩壓器（voltage regulator）：電源電壓的變動經過電阻和 \(r_d\) 分壓後，到輸出只剩一點點（例題 3）。</p>
+
+    <!-- ========== 5. 模型怎麼選 ========== -->
+    <h2>5. 模型怎麼選</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>模型</th><th>導通時換成</th><th>截止條件</th><th>適合用在</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>理想</td><td>短路</td><td>\(v_D \le 0\)</td><td>電源電壓遠大於 0.7 V；只想看哪顆二極體在工作</td></tr>
+          <tr><td>定電壓降</td><td>0.7 V 電壓源</td><td>\(v_D &lt; 0.7\) V</td><td>一般手算，最常用</td></tr>
+          <tr><td>指數</td><td>\(i_D = I_S e^{v_D/V_T}\)</td><td>連續曲線，不分狀態</td><td>需要精確值；題目給 \(I_S\) 或某電流下的電壓</td></tr>
+          <tr><td>小訊號</td><td>電阻 \(r_d = V_T/I_D\)</td><td>只在工作點附近成立</td><td>工作點已知，算交流小訊號</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">考試怎麼判斷</span>
+      <p>題目沒指定模型時，先看數字：電源只有幾伏，0.7 V 就不能忽略，至少用定電壓降模型；題目給了 \(I_S\) 或「某電流下的端電壓」，通常是要你用指數模型迭代。老師的預設模型 ✏️待確認。</p>
+    </div>
+
+    <!-- ========== 6. 例題 ========== -->
+    <h2>6. 例題</h2>
+
+    <div class="example">
+      <h3>例題 1：兩顆二極體的假設－驗證</h3>
+      <p>如圖 5，+12 V 經 \(R_1 = 10\ \text{k}\Omega\) 接到節點 A；\(D_1\) 陽極接 A、陰極接地；\(D_2\) 陽極接 A、陰極接節點 B；B 經 \(R_2 = 4\ \text{k}\Omega\) 接到 −8 V。(a) 二極體為理想，求 \(V_A\)、\(V_B\) 與流過 \(R_1\) 的電流 \(I\)。(b) 改用定電壓降模型（0.7 V）重算。</p>
+
+      <figure class="figure">
+        <svg viewBox="0 0 640 200" role="img" aria-label="例題 1 的兩顆二極體電路" font-family="inherit">
+          <defs>
+            <marker id="arrow-i5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <g fill="none" stroke="var(--navy)" stroke-width="2" stroke-linejoin="round">
+            <!-- +12 V → R1 → A → D2 陽極 -->
+            <path d="M44 70 L90 70 L95 60 L105 80 L115 60 L125 80 L135 60 L145 80 L150 70 L300 70"/>
+            <!-- D2 陰極 → B → R2 → −8 V -->
+            <path d="M324 70 L450 70 L455 60 L465 80 L475 60 L485 80 L495 60 L505 80 L510 70 L596 70"/>
+            <!-- A → D1 → 地 -->
+            <path d="M230 70 L230 110"/>
+            <path d="M230 134 L230 160"/>
+            <path d="M212 160 L248 160 M219 168 L241 168 M226 176 L234 176"/>
+          </g>
+          <!-- D2（朝右） -->
+          <path d="M300 56 L300 84 L324 70 z" fill="var(--navy)"/>
+          <line x1="324" y1="56" x2="324" y2="84" stroke="var(--navy)" stroke-width="3"/>
+          <!-- D1（朝下） -->
+          <path d="M216 110 L244 110 L230 134 z" fill="var(--navy)"/>
+          <line x1="216" y1="134" x2="244" y2="134" stroke="var(--navy)" stroke-width="3"/>
+          <!-- 端點與節點 -->
+          <circle cx="40" cy="70" r="4" fill="var(--surface)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="600" cy="70" r="4" fill="var(--surface)" stroke="var(--navy)" stroke-width="2"/>
+          <circle cx="230" cy="70" r="4.5" fill="var(--navy)"/>
+          <circle cx="400" cy="70" r="4.5" fill="var(--navy)"/>
+          <!-- 標字 -->
+          <text x="40" y="50" text-anchor="middle" font-size="15" fill="var(--ink)">+12 V</text>
+          <text x="600" y="50" text-anchor="middle" font-size="15" fill="var(--ink)">−8 V</text>
+          <text x="120" y="44" text-anchor="middle" font-size="14" fill="var(--ink)">R<tspan baseline-shift="sub" font-size="10">1</tspan> = 10 kΩ</text>
+          <text x="480" y="44" text-anchor="middle" font-size="14" fill="var(--ink)">R<tspan baseline-shift="sub" font-size="10">2</tspan> = 4 kΩ</text>
+          <text x="312" y="44" text-anchor="middle" font-size="14" fill="var(--ink)">D<tspan baseline-shift="sub" font-size="10">2</tspan></text>
+          <text x="256" y="128" font-size="14" fill="var(--ink)">D<tspan baseline-shift="sub" font-size="10">1</tspan></text>
+          <text x="230" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="var(--navy)">A</text>
+          <text x="400" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="var(--navy)">B</text>
+          <line x1="160" y1="94" x2="208" y2="94" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrow-i5)"/>
+          <text x="184" y="116" text-anchor="middle" font-size="15" fill="var(--accent)">I</text>
+          <text x="480" y="150" text-anchor="middle" font-size="13" fill="var(--muted)">電壓都對地量測</text>
+        </svg>
+        <figcaption>圖 5：例題 1 的電路。</figcaption>
+      </figure>
+
+      <details>
+        <summary>看解答</summary>
+        <p>1. (a) 先猜兩顆都導通：\(V_A = V_B = 0\)。\(I = (12-0)/10\ \text{k}\Omega = 1.2\) mA，流過 \(D_2\) 的電流 \(= (0-(-8))/4\ \text{k}\Omega = 2\) mA，所以 \(I_{D1} = 1.2 - 2 = -0.8\) mA &lt; 0，矛盾。</p>
+        <p>2. 改猜 \(D_1\) 截止、\(D_2\) 導通：電流從 +12 V 經 \(R_1\)、\(D_2\)、\(R_2\) 流到 −8 V：$$I = \frac{12-(-8)}{10\ \text{k}\Omega + 4\ \text{k}\Omega} = 1.43\ \text{mA}$$</p>
+        <p>3. \(V_A = V_B = 12 - (10\ \text{k}\Omega)(1.429\ \text{mA}) = -2.29\) V。驗證：\(D_2\) 電流為正 ✓；\(D_1\) 兩端 \(v_{D1} = V_A - 0 = -2.29\) V ≤ 0 ✓。得 <strong>\(I \approx 1.43\) mA，\(V_A = V_B \approx -2.29\) V</strong>。</p>
+        <p>4. (b) 同樣先試兩顆都導通：\(V_A = 0.7\) V、\(V_B = 0\)，\(I = 11.3/10\ \text{k}\Omega = 1.13\) mA，\(D_2\) 電流 2 mA，\(I_{D1} = -0.87\) mA &lt; 0，矛盾。</p>
+        <p>5. \(D_1\) 截止、\(D_2\) 導通：$$I = \frac{12 - 0.7 - (-8)}{14\ \text{k}\Omega} = 1.38\ \text{mA}$$ \(V_A = 12 - (10\ \text{k}\Omega)(1.379\ \text{mA}) = -1.79\) V，\(V_B = V_A - 0.7 = -2.49\) V。驗證：\(v_{D1} = -1.79\) V &lt; 0.7 V ✓。得 <strong>\(I \approx 1.38\) mA，\(V_A \approx -1.79\) V，\(V_B \approx -2.49\) V</strong>。</p>
+        <p>6. 觀察：兩種模型的電流只差約 3.5%，因為電路總共有 20 V，0.7 V 相對很小。</p>
+      </details>
+    </div>
+
+    <div class="example">
+      <h3>例題 2：三種模型比一比</h3>
+      <p>電源 \(V_{DD} = 3\) V 串聯 \(R = 200\ \Omega\) 與一顆順偏的矽二極體；這顆二極體在 1 mA 時端電壓為 0.700 V（就是單元 01 例題 3 那顆）。分別用 (a) 理想模型、(b) 定電壓降模型、(c) 指數模型迭代，求 \(I_D\) 與 \(V_D\)。</p>
+      <details>
+        <summary>看解答</summary>
+        <p>1. (a) 理想：\(V_D = 0\)，\(I_D = 3/200\)，得 <strong>\(I_D = 15.0\) mA</strong>。</p>
+        <p>2. (b) 定電壓降：\(V_D = 0.7\) V，\(I_D = (3-0.7)/200\)，得 <strong>\(I_D = 11.5\) mA</strong>。</p>
+        <p>3. (c) 迭代：每一輪先用 \(I_D = (3-V_D)/200\) 算電流，再用 \(V_D = 0.700 + 0.0259\ln(I_D/1\ \text{mA})\) 更新電壓。</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>次數</th><th>代入的 \(V_D\)（V）</th><th>\(I_D\)（mA）</th><th>更新後的 \(V_D\)（V）</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>0.7000</td><td>11.50</td><td>0.7633</td></tr>
+              <tr><td>2</td><td>0.7633</td><td>11.18</td><td>0.7625</td></tr>
+              <tr><td>3</td><td>0.7625</td><td>11.19</td><td>0.7625</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>第 3 次電壓已經不變，得 <strong>\(I_D \approx 11.2\) mA，\(V_D \approx 0.763\) V</strong>。</p>
+        <p>4. 比較：以指數模型為準，理想模型高估電流約 34%，定電壓降模型只高估約 2.8%。電源只有 3 V 時，0.7 V 不能忽略。</p>
+      </details>
+    </div>
+
+    <div class="example">
+      <h3>例題 3：用小訊號模型估算穩壓器的漣波</h3>
+      <p>直流電源 \(V^+ = 9\) V，上面疊了峰值 0.5 V 的漣波（ripple）。電源經 \(R = 1\ \text{k}\Omega\) 接到輸出端，輸出端對地接兩顆串聯的順偏二極體（規格同例題 2）。求 (a) 輸出直流電壓 \(V_O\) 與二極體電流 \(I_D\)（用定電壓降模型）；(b) 每顆二極體的 \(r_d\)；(c) 輸出漣波的峰值 \(v_o\)。</p>
+      <details>
+        <summary>看解答</summary>
+        <p>1. (a) 直流：\(V_O = 2 \times 0.7\)，得 <strong>\(V_O = 1.40\) V</strong>；\(I_D = (9 - 1.4)/1\ \text{k}\Omega\)，得 <strong>\(I_D = 7.60\) mA</strong>。</p>
+        <p>2. (b) \(r_d = V_T/I_D = 25.9\ \text{mV}/7.60\ \text{mA}\)，得 <strong>\(r_d \approx 3.41\ \Omega\)</strong>。</p>
+        <p>3. (c) 小訊號電路：拿掉直流，只剩 0.5 V 的漣波源串聯 \(R\)，再經兩個 \(r_d\) 串聯到地，是一個分壓器：$$v_o = 0.5 \times \frac{2r_d}{R + 2r_d} = 0.5 \times \frac{6.82}{1000 + 6.82}$$ 得 <strong>\(v_o \approx 3.38\) mV（峰值）</strong>。</p>
+        <p>4. 檢查：每顆二極體的 \(v_d \approx 1.69\) mV，遠小於 \(V_T\)，小訊號近似成立。輸入 0.5 V 的漣波到輸出只剩約 3.4 mV，縮小約 150 倍。</p>
+        <p>5. 驗算：直接用指數模型分別算 \(V^+\) = 9.5 V 與 8.5 V 時的輸出，\(V_O\) 分別變化 +3.32 mV 與 −3.55 mV，和小訊號估計的 ±3.38 mV 一致。另外，指數模型算出的直流 \(V_O\) 約 1.50 V：電流 7.6 mA 比 1 mA 大，每顆二極體的壓降多了約 50 mV。</p>
+      </details>
+    </div>
+
+    <section class="summary">
+      <h2>本頁重點</h2>
+      <ul>
+        <li>二極體的狀態要用假設－驗證法決定：導通的要 \(i_D &gt; 0\)，截止的要 \(v_D\) 低於導通電壓。</li>
+        <li>定電壓降模型把導通的二極體當成 0.7 V 電壓源，是手算最常用的模型；電源遠大於 0.7 V 時，理想模型也夠用。</li>
+        <li>要精確就用指數模型：負載線和特性曲線的交點是工作點 Q，手算用迭代法，兩、三次就收斂。</li>
+        <li>小訊號電阻 \(r_d = V_T/I_D\)：先解直流工作點，再把二極體換成 \(r_d\) 算交流。</li>
+        <li>小訊號近似只在 \(|v_d| \ll V_T\)（約 5 mV 以內）時成立。</li>
+      </ul>
+    </section>
+
+    <nav class="pager" id="pager" aria-label="單元導覽"></nav>
+  </main>
+
+  <footer class="site-footer">
+    電子學筆記站・依 Sedra/Smith《Microelectronic Circuits》整理的個人學習筆記
+  </footer>
+
+</body>
+</html>
