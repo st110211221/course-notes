@@ -1,0 +1,295 @@
+/* =========================================================
+   電子學筆記站｜全站唯一樣式檔
+   規則：顏色、字體、間距一律用下方 CSS 變數；不要在單元頁寫 <style> 或 style=""。
+   要新增元件 → 先在 CLAUDE.md「元件規範」登記，再加到這裡。
+   ========================================================= */
+
+:root {
+  /* 底色與文字 */
+  --bg: #F6F8FB;        /* 頁面底色 */
+  --surface: #FFFFFF;   /* 卡片、內容區底色 */
+  --navy: #1E3A5F;      /* 標題 */
+  --ink: #2A3441;       /* 內文 */
+  --muted: #6A7686;     /* 次要文字、說明 */
+  --line: #E2E8F0;      /* 分隔線、邊框 */
+  --accent: #2F6FED;    /* 連結、強調 */
+
+  /* 元件色（每種元件一組：主色＋淡底） */
+  --def: #2F6FED;      --def-bg: #EEF4FF;      /* 定義 */
+  --formula: #23935A;  --formula-bg: #ECF8F1;  /* 重要公式 */
+  --tip: #D99000;      --tip-bg: #FFF7E6;      /* 觀念提醒／易錯 */
+  --example: #7C5CD6;  --example-bg: #F5F2FD;  /* 例題 */
+
+  /* 圖（inline SVG）用色 */
+  --p-side: #FDE7EA;   /* p 型區 */
+  --n-side: #E6F0FF;   /* n 型區 */
+  --depl: #FFF4D6;     /* 空乏區 */
+
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(30, 58, 95, .06), 0 4px 16px rgba(30, 58, 95, .06);
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --mono: "JetBrains Mono", Consolas, monospace;
+  --content-width: 780px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.85;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img, svg { max-width: 100%; height: auto; }
+
+/* ---------- 頂部導覽列 ---------- */
+.site-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.site-header .inner {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.brand { font-weight: 700; color: var(--navy); }
+.brand:hover { text-decoration: none; }
+.brand .dot { color: var(--accent); }
+.breadcrumb { font-size: .9rem; color: var(--muted); }
+
+/* ---------- 主要內容欄 ---------- */
+main {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+h1, h2, h3 { color: var(--navy); line-height: 1.4; }
+h1 { font-size: 1.9rem; margin: 0 0 8px; }
+h2 {
+  font-size: 1.4rem;
+  margin: 48px 0 16px;
+  padding-left: 12px;
+  border-left: 5px solid var(--accent);
+}
+h3 { font-size: 1.15rem; margin: 28px 0 10px; }
+
+.unit-label {
+  display: inline-block;
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--def-bg);
+  border-radius: 999px;
+  padding: 2px 12px;
+  margin-bottom: 10px;
+}
+
+.lead {
+  font-size: 1.08rem;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+
+.meta { font-size: .85rem; color: var(--muted); }
+
+/* 學習目標 */
+.goals {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  margin: 24px 0;
+  box-shadow: var(--shadow);
+}
+.goals h2 { margin: 0 0 6px; border: 0; padding: 0; font-size: 1.1rem; }
+.goals ul { margin: 0; padding-left: 1.3em; }
+
+/* ---------- 重點框：定義／公式／提醒 ---------- */
+.box {
+  border-left: 5px solid;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 20px;
+  margin: 20px 0;
+}
+.box > .box-title {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.box p:last-child, .box ul:last-child { margin-bottom: 0; }
+.box p:first-of-type { margin-top: 0; }
+
+.box.def     { border-color: var(--def);     background: var(--def-bg); }
+.box.def     > .box-title { color: var(--def); }
+.box.formula { border-color: var(--formula); background: var(--formula-bg); }
+.box.formula > .box-title { color: var(--formula); }
+.box.tip     { border-color: var(--tip);     background: var(--tip-bg); }
+.box.tip     > .box-title { color: var(--tip); }
+
+/* 公式框裡的長公式可橫向捲動，避免手機撐破版面 */
+.box.formula .katex-display, .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+
+/* ---------- 例題 ---------- */
+.example {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--example);
+  border-radius: var(--radius);
+  padding: 16px 22px;
+  margin: 24px 0;
+  box-shadow: var(--shadow);
+}
+.example > h3 { margin: 0 0 8px; color: var(--example); }
+.example details {
+  margin-top: 12px;
+  background: var(--example-bg);
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+.example summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--example);
+}
+.example details[open] summary { margin-bottom: 8px; }
+
+/* ---------- 圖 ---------- */
+figure.figure {
+  margin: 24px 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+}
+figure.figure svg { width: 100%; max-width: 640px; }
+figure.figure figcaption { font-size: .9rem; color: var(--muted); margin-top: 8px; }
+
+/* ---------- 本頁重點 ---------- */
+.summary {
+  background: var(--navy);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 18px 24px;
+  margin: 40px 0 24px;
+}
+.summary h2 { color: #fff; border: 0; padding: 0; margin: 0 0 6px; font-size: 1.15rem; }
+.summary ul { margin: 0; padding-left: 1.3em; }
+.summary .katex { color: #fff; }
+
+/* 表格 */
+table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: .95rem; }
+th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; }
+th { background: var(--def-bg); color: var(--navy); }
+.table-wrap { overflow-x: auto; }
+
+code { font-family: var(--mono); background: var(--def-bg); padding: 1px 6px; border-radius: 4px; font-size: .9em; }
+
+/* ---------- 上一單元／下一單元 ---------- */
+.pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 32px;
+}
+.pager a, .pager span {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: .95rem;
+}
+.pager a:hover { border-color: var(--accent); text-decoration: none; }
+.pager .next { text-align: right; grid-column: 2; }
+.pager .disabled { color: var(--muted); }
+.pager small { display: block; color: var(--muted); }
+
+/* ---------- 首頁 ---------- */
+.hero { padding: 16px 0 8px; }
+.hero h1 { font-size: 2.1rem; }
+.hero .tags { margin-top: 8px; }
+
+.note-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.note-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  transition: transform .15s ease, border-color .15s ease;
+}
+a.note-card:hover { transform: translateY(-2px); border-color: var(--accent); text-decoration: none; }
+.note-card .num { font-size: .85rem; font-weight: 700; color: var(--accent); }
+.note-card h3 { margin: 2px 0 6px; }
+.note-card p { margin: 0 0 10px; font-size: .95rem; color: var(--muted); line-height: 1.7; }
+.note-card.planned { opacity: .6; box-shadow: none; }
+.note-card.planned .num { color: var(--muted); }
+
+.tag {
+  display: inline-block;
+  font-size: .78rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 10px;
+  margin: 0 4px 4px 0;
+  color: var(--muted);
+}
+.tag.status { background: var(--def-bg); color: var(--accent); border-color: transparent; }
+.tag.status.planned { background: var(--bg); color: var(--muted); }
+
+.about {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  margin-top: 40px;
+}
+.about > h3:first-child { margin-top: 8px; }
+
+/* ---------- 頁尾 ---------- */
+.site-footer {
+  text-align: center;
+  font-size: .85rem;
+  color: var(--muted);
+  padding: 24px 20px 40px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- 手機 ---------- */
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  main { padding: 24px 16px 40px; }
+  h1 { font-size: 1.6rem; }
+  .hero h1 { font-size: 1.75rem; }
+  .box, .example, .goals, .summary { padding-left: 16px; padding-right: 16px; }
+  .note-list { grid-template-columns: 1fr; }
+  .pager { grid-template-columns: 1fr; }
+  .pager .next { grid-column: 1; }
+  .breadcrumb { display: none; }
+}

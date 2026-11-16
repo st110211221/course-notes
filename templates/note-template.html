@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--
+  單元頁模板：複製成 notes/<slug>.html 後，把所有 {{…}} 換掉、刪掉這段註解。
+  區塊順序固定：標題區 → 學習目標 → 觀念段落（h2）→ 例題 → 本頁重點 → pager。
+  不要改 <head> 的引用順序，不要加 <style> 或 style=""。
+-->
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>單元 {{NN}}：{{標題}}｜電子學筆記</title>
+  <meta name="description" content="{{一句話摘要，與 notes-data.js 的 summary 相同}}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="../assets/notes-data.js"></script>
+  <script defer src="../assets/site.js"></script>
+</head>
+<body data-page="note" data-slug="{{slug}}">
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">電子學筆記<span class="dot">・</span></a>
+      <span class="breadcrumb">首頁 ／ 單元 {{NN}}</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="unit-label">單元 {{NN}}・{{課本章節}}</span>
+    <h1>{{標題}}</h1>
+    <p class="lead">{{一句話摘要}}</p>
+    <p class="meta">最後更新：{{YYYY-MM-DD}}</p>
+
+    <section class="goals">
+      <h2>學習目標</h2>
+      <ul>
+        <li>{{讀完這頁要會的事 1}}</li>
+        <li>{{讀完這頁要會的事 2}}</li>
+        <li>{{讀完這頁要會的事 3}}</li>
+      </ul>
+    </section>
+
+    <h2>1. {{第一個觀念}}</h2>
+    <p>{{說明文字}}</p>
+
+    <div class="box def">
+      <span class="box-title">定義：{{名詞}}</span>
+      <p>{{定義內容}}</p>
+    </div>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：{{公式名稱}}</span>
+      $${{LaTeX 公式}}$$
+      <p>{{每個符號的意義與單位}}</p>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">觀念提醒</span>
+      <p>{{容易搞錯的地方}}</p>
+    </div>
+
+    <figure class="figure">
+      <!-- inline SVG，只用 CSS 變數裡的顏色 -->
+      <figcaption>圖 {{N}}：{{圖說}}</figcaption>
+    </figure>
+
+    <h2>{{N}}. 例題</h2>
+
+    <div class="example">
+      <h3>例題 1：{{題目重點}}</h3>
+      <p>{{題目，已知條件寫清楚}}</p>
+      <details>
+        <summary>看解答</summary>
+        <p>{{解題步驟，每步一行，最後粗體寫出答案與單位}}</p>
+      </details>
+    </div>
+
+    <section class="summary">
+      <h2>本頁重點</h2>
+      <ul>
+        <li>{{重點 1}}</li>
+        <li>{{重點 2}}</li>
+        <li>{{重點 3}}</li>
+      </ul>
+    </section>
+
+    <nav class="pager" id="pager" aria-label="單元導覽"></nav>
+  </main>
+
+  <footer class="site-footer">
+    電子學筆記站・依 Sedra/Smith《Microelectronic Circuits》整理的個人學習筆記
+  </footer>
+
+</body>
+</html>

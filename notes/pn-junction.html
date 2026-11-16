@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>單元 01：PN 接面｜電子學筆記</title>
+  <meta name="description" content="空乏區怎麼形成、內建電位與空乏區寬度怎麼算，以及偏壓下的電流與電容。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <script defer src="../assets/notes-data.js"></script>
+  <script defer src="../assets/site.js"></script>
+</head>
+<body data-page="note" data-slug="pn-junction">
+
+  <header class="site-header">
+    <div class="inner">
+      <a class="brand" href="../index.html">電子學筆記<span class="dot">・</span></a>
+      <span class="breadcrumb">首頁 ／ 單元 01</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="unit-label">單元 01・Sedra/Smith Ch.3</span>
+    <h1>PN 接面</h1>
+    <p class="lead">空乏區怎麼形成、內建電位與空乏區寬度怎麼算，以及偏壓下的電流與電容。</p>
+    <p class="meta">最後更新：2026-11-16</p>
+
+    <section class="goals">
+      <h2>學習目標</h2>
+      <ul>
+        <li>能說明空乏區與內建電位是怎麼形成的</li>
+        <li>會算內建電位 \(V_0\)、空乏區寬度 \(W\) 與兩側寬度 \(x_n\)、\(x_p\)</li>
+        <li>能說明逆偏時空乏區寬度與接面電容如何隨電壓改變</li>
+        <li>會用二極體方程式估算順偏電流，並判斷崩潰的類型</li>
+      </ul>
+    </section>
+
+    <!-- ========== 1. 先複習 ========== -->
+    <h2>1. 先複習：n 型與 p 型半導體</h2>
+    <p>純矽（本質半導體，intrinsic semiconductor）裡，自由電子濃度 \(n\) 和電洞濃度 \(p\) 都等於本質濃度 \(n_i\)。摻入五價的磷，多出自由電子，成為 n 型；摻入三價的硼，多出電洞，成為 p 型。</p>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：質量作用定律</span>
+      $$n\,p = n_i^2$$
+      <p>熱平衡時，不管怎麼摻雜，電子與電洞濃度的乘積都等於 \(n_i^2\)。<br>
+      n 型：\(n_{n0} \approx N_D\)，\(p_{n0} = n_i^2/N_D\)；p 型：\(p_{p0} \approx N_A\)，\(n_{p0} = n_i^2/N_A\)。</p>
+    </div>
+
+    <div class="box def">
+      <span class="box-title">定義：漂移電流與擴散電流</span>
+      <p>漂移電流（drift current）：載子被電場推著走所形成的電流。<br>
+      擴散電流（diffusion current）：載子從濃度高的地方往濃度低的地方跑所形成的電流。<br>
+      PN 接面的所有行為，都是這兩種電流互相拉扯的結果。</p>
+    </div>
+
+    <!-- ========== 2. 接面形成 ========== -->
+    <h2>2. 接面形成：空乏區與內建電位</h2>
+    <p>p 型和 n 型接在一起的瞬間，接面兩側濃度差很大：p 側的電洞往 n 側擴散，n 側的電子往 p 側擴散，在接面附近互相復合。結果接面附近只剩下不能移動的離子：p 側留下帶負電的受體離子，n 側留下帶正電的施體離子。</p>
+    <p>這些離子建立一個由 n 側指向 p 側的電場，擋住多數載子繼續擴散，同時把少數載子往對面推（漂移）。當擴散電流和漂移電流大小相等、方向相反時，接面達到平衡，淨電流為零。</p>
+
+    <div class="box def">
+      <span class="box-title">定義：空乏區（depletion region）</span>
+      <p>接面兩側自由載子幾乎被「掏空」、只剩固定離子電荷的區域，也叫空間電荷區（space-charge region）。</p>
+    </div>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：內建電位（built-in voltage）</span>
+      $$V_0 = V_T \ln\!\left(\frac{N_A N_D}{n_i^2}\right)$$
+      <p>\(V_T = kT/q\) 是熱電壓，300 K 時約 25.9 mV；\(N_A\)、\(N_D\) 分別是 p 側與 n 側的摻雜濃度（cm⁻³）。矽在室溫下 \(V_0\) 通常是 0.6～0.9 V。</p>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">內建電位量得到嗎？</span>
+      <p>量不到。拿電表直接量二極體兩端會得到 0 V，因為金屬和半導體接觸的地方也有接觸電位，整圈加起來剛好抵消；不然二極體就能憑空供電了。</p>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 640 300" role="img" aria-label="平衡時的 PN 接面示意圖" font-family="inherit">
+        <defs>
+          <marker id="arrow-e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--navy)"/>
+          </marker>
+        </defs>
+        <!-- 區域標題 -->
+        <text x="135" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="var(--navy)">p 型（中性區）</text>
+        <text x="325" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tip)">空乏區</text>
+        <text x="510" y="34" text-anchor="middle" font-size="15" font-weight="700" fill="var(--navy)">n 型（中性區）</text>
+        <!-- 區域底色 -->
+        <rect x="20" y="50" width="230" height="140" fill="var(--p-side)"/>
+        <rect x="250" y="50" width="150" height="140" fill="var(--depl)"/>
+        <rect x="400" y="50" width="220" height="140" fill="var(--n-side)"/>
+        <rect x="20" y="50" width="600" height="140" fill="none" stroke="var(--navy)" stroke-width="1.5"/>
+        <line x1="290" y1="50" x2="290" y2="190" stroke="var(--navy)" stroke-dasharray="5 4"/>
+        <!-- p 側電洞（空心圓） -->
+        <g fill="none" stroke="var(--navy)" stroke-width="1.5">
+          <circle cx="50" cy="85" r="6"/><circle cx="100" cy="85" r="6"/><circle cx="150" cy="85" r="6"/><circle cx="200" cy="85" r="6"/>
+          <circle cx="75" cy="125" r="6"/><circle cx="125" cy="125" r="6"/><circle cx="175" cy="125" r="6"/><circle cx="225" cy="125" r="6"/>
+          <circle cx="50" cy="165" r="6"/><circle cx="100" cy="165" r="6"/><circle cx="150" cy="165" r="6"/><circle cx="200" cy="165" r="6"/>
+        </g>
+        <!-- n 側電子（實心點） -->
+        <g fill="var(--accent)">
+          <circle cx="425" cy="85" r="5"/><circle cx="475" cy="85" r="5"/><circle cx="525" cy="85" r="5"/><circle cx="575" cy="85" r="5"/>
+          <circle cx="450" cy="125" r="5"/><circle cx="500" cy="125" r="5"/><circle cx="550" cy="125" r="5"/><circle cx="600" cy="125" r="5"/>
+          <circle cx="425" cy="165" r="5"/><circle cx="475" cy="165" r="5"/><circle cx="525" cy="165" r="5"/><circle cx="575" cy="165" r="5"/>
+        </g>
+        <!-- p 側負離子（窄、密） -->
+        <g fill="var(--surface)" stroke="var(--navy)" stroke-width="1.2">
+          <circle cx="261" cy="80" r="9"/><circle cx="279" cy="80" r="9"/>
+          <circle cx="261" cy="120" r="9"/><circle cx="279" cy="120" r="9"/>
+          <circle cx="261" cy="160" r="9"/><circle cx="279" cy="160" r="9"/>
+        </g>
+        <g font-size="14" font-weight="700" text-anchor="middle" fill="var(--navy)">
+          <text x="261" y="85">−</text><text x="279" y="85">−</text>
+          <text x="261" y="125">−</text><text x="279" y="125">−</text>
+          <text x="261" y="165">−</text><text x="279" y="165">−</text>
+        </g>
+        <!-- n 側正離子（寬、疏） -->
+        <g fill="var(--surface)" stroke="var(--navy)" stroke-width="1.2">
+          <circle cx="312" cy="95" r="9"/><circle cx="345" cy="95" r="9"/><circle cx="378" cy="95" r="9"/>
+          <circle cx="312" cy="145" r="9"/><circle cx="345" cy="145" r="9"/><circle cx="378" cy="145" r="9"/>
+        </g>
+        <g font-size="14" font-weight="700" text-anchor="middle" fill="var(--navy)">
+          <text x="312" y="100">+</text><text x="345" y="100">+</text><text x="378" y="100">+</text>
+          <text x="312" y="150">+</text><text x="345" y="150">+</text><text x="378" y="150">+</text>
+        </g>
+        <!-- 內建電場（n → p） -->
+        <line x1="392" y1="214" x2="258" y2="214" stroke="var(--navy)" stroke-width="2" marker-end="url(#arrow-e)"/>
+        <text x="325" y="236" text-anchor="middle" font-size="14" fill="var(--navy)">內建電場 E（由 n 指向 p）</text>
+        <!-- 寬度標示 -->
+        <g stroke="var(--muted)" stroke-width="1.2">
+          <line x1="250" y1="250" x2="250" y2="266"/><line x1="290" y1="250" x2="290" y2="266"/><line x1="400" y1="250" x2="400" y2="266"/>
+          <line x1="250" y1="258" x2="290" y2="258"/><line x1="290" y1="258" x2="400" y2="258"/>
+        </g>
+        <text x="270" y="284" text-anchor="middle" font-size="14" fill="var(--ink)">x<tspan baseline-shift="sub" font-size="11">p</tspan></text>
+        <text x="345" y="284" text-anchor="middle" font-size="14" fill="var(--ink)">x<tspan baseline-shift="sub" font-size="11">n</tspan></text>
+        <text x="520" y="230" text-anchor="middle" font-size="13" fill="var(--muted)">○ 電洞　● 電子</text>
+        <text x="520" y="256" text-anchor="middle" font-size="13" fill="var(--muted)">⊖ 受體離子　⊕ 施體離子</text>
+        <text x="520" y="284" text-anchor="middle" font-size="13" fill="var(--muted)">空乏區兩端電位差＝V₀</text>
+        <text x="130" y="230" text-anchor="middle" font-size="13" fill="var(--muted)">W ＝ x<tspan baseline-shift="sub" font-size="10">p</tspan> ＋ x<tspan baseline-shift="sub" font-size="10">n</tspan></text>
+        <text x="130" y="256" text-anchor="middle" font-size="13" fill="var(--muted)">（本圖 N<tspan baseline-shift="sub" font-size="10">A</tspan> ＞ N<tspan baseline-shift="sub" font-size="10">D</tspan>）</text>
+      </svg>
+      <figcaption>圖 1：平衡時的 PN 接面。n 側摻雜較淡，所以空乏區往 n 側延伸得比較寬。</figcaption>
+    </figure>
+
+    <!-- ========== 3. 空乏區寬度 ========== -->
+    <h2>3. 空乏區寬度</h2>
+    <p>整個接面要維持電中性，所以空乏區兩側的電荷量一定相等：\(q\,x_p A N_A = q\,x_n A N_D\)。</p>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：電荷平衡</span>
+      $$\frac{x_n}{x_p} = \frac{N_A}{N_D}$$
+    </div>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：空乏區寬度</span>
+      $$W = x_n + x_p = \sqrt{\frac{2\varepsilon_s}{q}\left(\frac{1}{N_A}+\frac{1}{N_D}\right)V_0}$$
+      <p>\(\varepsilon_s\) 是矽的介電常數，\(11.7\varepsilon_0 = 1.04\times10^{-12}\) F/cm。濃度用 cm⁻³ 代入時，\(W\) 的單位是 cm，記得換成 μm（1 cm = 10⁴ μm）。</p>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">空乏區偏向摻雜淡的那一側</span>
+      <p>摻雜越淡，就要掏空越寬的區域才湊得到同樣多的電荷。當 \(N_A \gg N_D\)（p⁺n 接面）時，空乏區幾乎全在 n 側：\(W \approx x_n\)。</p>
+    </div>
+
+    <!-- ========== 4. 逆偏 ========== -->
+    <h2>4. 逆偏：空乏區變寬、接面電容變小</h2>
+    <p>加上逆偏電壓 \(V_R\)（p 側接低電位）後，位障從 \(V_0\) 變成 \(V_0 + V_R\)，空乏區變寬，多數載子幾乎無法擴散過去。剩下的只有少數載子的漂移電流，大小約為飽和電流 \(I_S\)，非常小；實際元件因為漏電，逆向電流會比 \(I_S\) 大，但通常仍在 nA 等級。</p>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：逆偏時的空乏區寬度</span>
+      $$W = \sqrt{\frac{2\varepsilon_s}{q}\left(\frac{1}{N_A}+\frac{1}{N_D}\right)\left(V_0+V_R\right)}$$
+    </div>
+
+    <p>空乏區兩側存著正負電荷，\(V_R\) 一變，存的電荷就跟著變，所以逆偏的 PN 接面就像一個電容。</p>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：接面電容（junction capacitance）</span>
+      $$C_j = \frac{C_{j0}}{\left(1+\dfrac{V_R}{V_0}\right)^{m}}, \qquad C_{j0} = A\sqrt{\left(\frac{\varepsilon_s q}{2}\right)\left(\frac{N_A N_D}{N_A+N_D}\right)\frac{1}{V_0}}$$
+      <p>\(A\) 是接面面積，\(C_{j0}\) 是零偏壓時的接面電容，\(m\) 是漸變係數（grading coefficient）：陡接面（abrupt junction）\(m = 1/2\)，一般介於 1/3～1/2。</p>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">當成平行板電容來看</span>
+      <p>陡接面時其實 \(C_j = \varepsilon_s A / W\)：空乏區就像平行板電容中間的介質。逆偏越大、\(W\) 越寬、電容越小。可變電容二極體（varactor）就是利用這個性質。</p>
+    </div>
+
+    <div class="box def">
+      <span class="box-title">定義：崩潰（breakdown）</span>
+      <p>逆偏電壓大到某個值 \(V_{ZK}\) 時，逆向電流突然暴增、端電壓幾乎不再增加的現象。有兩種機制：</p>
+      <ul>
+        <li>齊納崩潰（Zener breakdown）：空乏區很窄、電場極強，直接把共價鍵裡的電子拉出來；通常發生在 \(V_Z\) 小於約 5 V。</li>
+        <li>累增崩潰（avalanche breakdown）：載子被電場加速，撞出更多電子電洞對，連鎖放大；通常發生在 \(V_Z\) 大於約 7 V。</li>
+      </ul>
+      <p>只要功率不超過額定值，崩潰本身不會燒壞元件；稽納二極體就是刻意工作在崩潰區。</p>
+    </div>
+
+    <!-- ========== 5. 順偏 ========== -->
+    <h2>5. 順偏：二極體方程式</h2>
+    <p>加上順偏電壓 \(V\)（p 側接高電位）後，位障降成 \(V_0 - V\)，空乏區變窄。多數載子很容易越過接面，進到對面變成少數載子，一邊擴散一邊復合，形成隨 \(V\) 指數增加的電流。</p>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：二極體方程式（Shockley equation）</span>
+      $$I = I_S\left(e^{V/V_T}-1\right) \approx I_S\, e^{V/V_T} \quad (V \gg V_T)$$
+    </div>
+
+    <div class="box formula">
+      <span class="box-title">重要公式：飽和電流</span>
+      $$I_S = A\,q\,n_i^2\left(\frac{D_p}{L_p N_D}+\frac{D_n}{L_n N_A}\right)$$
+      <p>\(D_p\)、\(D_n\) 是電洞與電子的擴散係數（cm²/s），\(L_p\)、\(L_n\) 是擴散長度（cm）。\(I_S\) 和 \(n_i^2\) 成正比，所以對溫度非常敏感：溫度每升高約 5 °C，\(I_S\) 大約變成兩倍。</p>
+    </div>
+
+    <div class="box tip">
+      <span class="box-title">60 mV 法則</span>
+      <p>因為 \(I \propto e^{V/V_T}\)，電流每變 10 倍，電壓只變 \(V_T \ln 10 \approx 2.3\,V_T \approx 60\) mV。所以矽二極體導通時，電流從 0.1 mA 到 10 mA，端電壓大概都落在 0.6～0.8 V。另外，固定電流下溫度每升高 1 °C，端電壓約下降 2 mV。</p>
+    </div>
+
+    <div class="box def">
+      <span class="box-title">定義：擴散電容（diffusion capacitance）</span>
+      <p>順偏時，注入兩側的少數載子會存成電荷；電壓一變，這些電荷跟著變，等效為電容 \(C_d = (\tau_T / V_T)\, I\)，其中 \(\tau_T\) 是平均渡越時間（mean transit time）。順偏時 \(C_d\) 通常遠大於 \(C_j\)。</p>
+    </div>
+
+    <figure class="figure">
+      <svg viewBox="0 0 640 320" role="img" aria-label="二極體 I–V 特性曲線示意圖" font-family="inherit">
+        <defs>
+          <marker id="arrow-axis" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+        <!-- 區域底色 -->
+        <rect x="380" y="20" width="240" height="290" fill="var(--formula-bg)"/>
+        <rect x="150" y="20" width="230" height="290" fill="var(--def-bg)"/>
+        <rect x="30" y="20" width="120" height="290" fill="var(--tip-bg)"/>
+        <!-- 座標軸 -->
+        <line x1="30" y1="200" x2="625" y2="200" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis)"/>
+        <line x1="380" y1="310" x2="380" y2="18" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-axis)"/>
+        <text x="612" y="222" font-size="15" fill="var(--ink)">V</text>
+        <text x="390" y="32" font-size="15" fill="var(--ink)">I</text>
+        <text x="368" y="218" font-size="13" fill="var(--muted)" text-anchor="end">0</text>
+        <!-- 曲線 -->
+        <path d="M140 310 L144 240 Q146 207 152 204 L380 200 L450 200 L470 199.8 L480 199.6 L490 199.3 L500 198.5 L510 196.9 L515 195.5 L520 193.6 L525 190.7 L530 186.7 L535 180.8 L540 172.4 L545 160.3 L550 142.9 L555 117.9 L560 81.8 L565 30"
+              fill="none" stroke="var(--navy)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- 刻度 -->
+        <line x1="555" y1="195" x2="555" y2="205" stroke="var(--muted)"/>
+        <text x="555" y="222" font-size="13" text-anchor="middle" fill="var(--muted)">約 0.7 V</text>
+        <line x1="150" y1="195" x2="150" y2="205" stroke="var(--muted)"/>
+        <text x="158" y="188" font-size="13" fill="var(--muted)">−V<tspan baseline-shift="sub" font-size="10">ZK</tspan></text>
+        <!-- 區域標字 -->
+        <text x="470" y="80" font-size="15" font-weight="700" fill="var(--formula)" text-anchor="middle">順偏區</text>
+        <text x="470" y="102" font-size="13" fill="var(--muted)" text-anchor="middle">電流指數上升</text>
+        <text x="265" y="160" font-size="15" font-weight="700" fill="var(--def)" text-anchor="middle">逆偏區</text>
+        <text x="265" y="182" font-size="13" fill="var(--muted)" text-anchor="middle">I ≈ −I<tspan baseline-shift="sub" font-size="10">S</tspan>（極小）</text>
+        <text x="90" y="250" font-size="15" font-weight="700" fill="var(--tip)" text-anchor="middle">崩潰區</text>
+        <text x="90" y="272" font-size="13" fill="var(--muted)" text-anchor="middle">電壓幾乎固定</text>
+      </svg>
+      <figcaption>圖 2：二極體的 I–V 特性（示意圖，非等比例）。</figcaption>
+    </figure>
+
+    <!-- ========== 6. 例題 ========== -->
+    <h2>6. 例題</h2>
+
+    <div class="example">
+      <h3>例題 1：內建電位與空乏區寬度</h3>
+      <p>矽 PN 接面，T = 300 K，\(N_A = 10^{18}\ \text{cm}^{-3}\)、\(N_D = 10^{16}\ \text{cm}^{-3}\)。求零偏壓時的 \(V_0\)、\(W\)、\(x_n\)、\(x_p\)。</p>
+      <details>
+        <summary>看解答</summary>
+        <p>1. 內建電位：$$V_0 = 0.0259 \ln\!\left(\frac{10^{18}\times10^{16}}{(1.5\times10^{10})^2}\right) = 0.0259 \ln(4.44\times10^{13}) = 0.0259 \times 31.4$$ 得 <strong>\(V_0 \approx 0.814\) V</strong>。</p>
+        <p>2. 空乏區寬度：$$W = \sqrt{\frac{2(1.04\times10^{-12})}{1.602\times10^{-19}}\left(10^{-18}+10^{-16}\right)(0.814)} = 3.27\times10^{-5}\ \text{cm}$$ 得 <strong>\(W \approx 0.327\) μm</strong>。</p>
+        <p>3. 兩側寬度：\(x_n = W\dfrac{N_A}{N_A+N_D} \approx\) <strong>0.324 μm</strong>，\(x_p = W\dfrac{N_D}{N_A+N_D} \approx\) <strong>3.24 nm</strong>。</p>
+        <p>4. 觀察：這是 p⁺n 接面，約 99% 的空乏區在淡摻雜的 n 側。</p>
+      </details>
+    </div>
+
+    <div class="example">
+      <h3>例題 2：逆偏下的接面電容</h3>
+      <p>接續例題 1，接面面積 \(A = 10^{-4}\ \text{cm}^2\)（100 μm × 100 μm），陡接面 \(m = 1/2\)。求 \(C_{j0}\)，以及逆偏 \(V_R = 2\) V 時的 \(W\) 與 \(C_j\)。</p>
+      <details>
+        <summary>看解答</summary>
+        <p>1. 等效濃度：\(\dfrac{N_A N_D}{N_A+N_D} = 9.90\times10^{15}\ \text{cm}^{-3}\)。</p>
+        <p>2. 零偏壓電容：$$C_{j0} = 10^{-4}\sqrt{\frac{(1.04\times10^{-12})(1.602\times10^{-19})}{2}\cdot(9.90\times10^{15})\cdot\frac{1}{0.814}}$$ 得 <strong>\(C_{j0} \approx 3.18\) pF</strong>。</p>
+        <p>3. 逆偏 2 V 的寬度：\(W = 0.327\ \mu\text{m}\times\sqrt{\dfrac{0.814+2}{0.814}}\)，得 <strong>\(W \approx 0.608\) μm</strong>。</p>
+        <p>4. 逆偏 2 V 的電容：\(C_j = \dfrac{3.18\ \text{pF}}{\sqrt{1+2/0.814}} = \dfrac{3.18}{1.86}\)，得 <strong>\(C_j \approx 1.71\) pF</strong>。</p>
+        <p>5. 驗算：\(\varepsilon_s A / W = (1.04\times10^{-12})(10^{-4}) / (6.08\times10^{-5}) \approx 1.71\) pF，與上面一致。</p>
+      </details>
+    </div>
+
+    <div class="example">
+      <h3>例題 3：用二極體方程式估算電壓</h3>
+      <p>某矽二極體在 300 K、電流 1 mA 時端電壓為 0.700 V。(a) 求 \(I_S\)。(b) 電流要變成 10 mA，端電壓是多少？</p>
+      <details>
+        <summary>看解答</summary>
+        <p>1. (a) 順偏時 \(I \approx I_S e^{V/V_T}\)，所以 \(I_S = 10^{-3}\, e^{-0.700/0.0259} = 10^{-3}\, e^{-27.0}\)，得 <strong>\(I_S \approx 1.83\times10^{-15}\) A</strong>。</p>
+        <p>2. (b) 兩個電流相除：\(\dfrac{I_2}{I_1} = e^{(V_2-V_1)/V_T}\)，所以 \(V_2 = V_1 + V_T\ln 10 = 0.700 + 0.0596\)，得 <strong>\(V_2 \approx 0.760\) V</strong>。</p>
+        <p>3. 這正是 60 mV 法則：電流變 10 倍，電壓只多約 60 mV。</p>
+      </details>
+    </div>
+
+    <section class="summary">
+      <h2>本頁重點</h2>
+      <ul>
+        <li>擴散留下固定離子形成空乏區，離子的電場擋住擴散；平衡時 \(V_0 = V_T\ln(N_A N_D/n_i^2)\)，矽約 0.6～0.9 V。</li>
+        <li>空乏區寬度 \(W \propto \sqrt{V_0+V_R}\)，而且主要落在摻雜淡的那一側（\(x_n/x_p = N_A/N_D\)）。</li>
+        <li>逆偏時電流只剩極小的 \(I_S\)；接面電容 \(C_j = C_{j0}/(1+V_R/V_0)^m\) 隨逆偏變大而變小。</li>
+        <li>順偏時 \(I = I_S(e^{V/V_T}-1)\)，電流每變 10 倍，電壓只變約 60 mV。</li>
+        <li>逆偏超過 \(V_{ZK}\) 會崩潰：約 5 V 以下多為齊納崩潰，約 7 V 以上多為累增崩潰。</li>
+      </ul>
+    </section>
+
+    <nav class="pager" id="pager" aria-label="單元導覽"></nav>
+  </main>
+
+  <footer class="site-footer">
+    電子學筆記站・依 Sedra/Smith《Microelectronic Circuits》整理的個人學習筆記
+  </footer>
+
+</body>
+</html>
